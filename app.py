@@ -1,17 +1,28 @@
+# app.py ফাইলের কোড আপডেট
+import streamlit as st
 import google.generativeai as genai
 
-# Apnar API Key ti ekhane bosan
-genai.configure(api_key="AIzaSyCVE4wxLGyCvs9kIKoRRV7aRBZ4lK8Kkxc")
+st.set_page_config(page_title="My AI Portfolio", page_icon="🤖")
 
-def generate_content(user_prompt):
-    try:
-        # Paid model er bodole 'gemini-1.5-flash' use kora hocche (Free Tier er jonno sera)
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        
-        response = model.generate_content(user_prompt)
-        return response.text
-    except Exception as e:
-        return f"Error: {e}"
+# --- সিক্রেট থেকে API Key নেওয়া ---
+# এখন আর কোডে কি (Key) দেখা যাবে না, এটি সার্ভারের গোপন ভল্ট থেকে আসবে
+api_key = st.secrets["GOOGLE_API_KEY"]
+genai.configure(api_key=api_key)
 
-# Test korar jonno:
-print(generate_content("Hello, how are you?"))
+st.title("🤖 My AI Assistant")
+st.write("Ask me anything related to my portfolio!")
+
+user_input = st.text_input("Enter your prompt here:", placeholder="Ex: Who are you?")
+
+if st.button("Generate Answer"):
+    if user_input:
+        try:
+            with st.spinner("Thinking..."):
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                response = model.generate_content(user_input)
+                st.success("Response:")
+                st.write(response.text)
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+    else:
+        st.warning("Please enter some text first!")
